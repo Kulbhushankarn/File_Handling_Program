@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Forms;
 
 namespace File_Handling_Program
@@ -31,27 +32,33 @@ namespace File_Handling_Program
                 // Get the values from the Controls
                 string prefix = textBox1.Text;
                 string firstName = textBox2.Text;
-                string middleName = textBox3.Text; 
+                string middleName = textBox3.Text;
                 string lastName = textBox4.Text;
                 string education = educationComboBox.SelectedItem?.ToString() ?? string.Empty;
-                string joiningDate = dateTimePicker1.Value.ToString("yyyy-MM-dd"); // Format the date as needed
+                string joiningDate = dateTimePicker1.Value.ToString("yyyy-MM-dd");
                 string currentCompany = textBox6.Text;
                 string currentAddress = textBox7.Text;
-                string dob = dateTimePicker2.Value.ToString("yyyy-MM-dd"); // Format the date as needed
+                string dob = dateTimePicker2.Value.ToString("yyyy-MM-dd");
 
-                
-                string userData = $"{prefix}\t{firstName}\t{middleName}\t{lastName}\t{education}\t{joiningDate}\t{currentCompany}\t{currentAddress}\t{dob}";
+                // Create a binary writer
+                using (BinaryWriter writer = new BinaryWriter(File.Open("C:\\Users\\lenovo\\Downloads\\New Text Document.bin", FileMode.Append)))
+                {
+                    // Write data in binary format
+                    writer.Write(prefix);
+                    writer.Write(firstName);
+                    writer.Write(middleName);
+                    writer.Write(lastName);
+                    writer.Write(education);
+                    writer.Write(joiningDate);
+                    writer.Write(currentCompany);
+                    writer.Write(currentAddress);
+                    writer.Write(dob);
+                }
 
-                
-                string filePath = "C:\\Users\\lenovo\\Downloads\\New Text Document.txt";
-
-                
-                System.IO.File.AppendAllText(filePath, userData + Environment.NewLine);
-
-                
+                // Clear the controls after writing
                 ClearControls();
 
-                MessageBox.Show("User added successfully.");
+                MessageBox.Show("User added successfully in binary format.");
             }
             catch (Exception ex)
             {

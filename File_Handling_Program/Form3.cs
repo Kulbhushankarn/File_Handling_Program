@@ -12,7 +12,7 @@ namespace File_Handling_Program
         {
             InitializeComponent();
             currentData = new string[9];
-            currentIndex = -1; // Initialize index to -1 (no data loaded initially)
+            currentIndex = -1; 
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -63,12 +63,13 @@ namespace File_Handling_Program
         // Method to set the text of text boxes in Form3
         public void SetTextBoxValues(string[] values)
         {
-            // Ensure that values array is not null and has enough elements
+            
             if (values != null && values.Length >= 9)
             {
                 currentData = values;
-                currentIndex = 0; // Reset index to 0 after loading new data
+                currentIndex = 0; 
                 UpdateTextBoxes();
+                UpdateNavigationButtons(); 
             }
             else
             {
@@ -86,6 +87,7 @@ namespace File_Handling_Program
             {
                 currentIndex = 0;
                 UpdateTextBoxes();
+                UpdateNavigationButtons();
             }
         }
 
@@ -95,6 +97,7 @@ namespace File_Handling_Program
             {
                 currentIndex--;
                 UpdateTextBoxes();
+                UpdateNavigationButtons();
             }
             else
             {
@@ -104,13 +107,14 @@ namespace File_Handling_Program
 
         private void nextBtn_Click(object sender, EventArgs e)
         {
-            // Assuming totalRecords is the total number of records
-            int totalRecords = 10; // You should replace this with the actual total number of records
+            
+            int totalRecords = 10; 
 
             if (currentIndex < totalRecords - 1)
             {
                 currentIndex++;
                 UpdateTextBoxes();
+                UpdateNavigationButtons();
             }
             else
             {
@@ -120,13 +124,14 @@ namespace File_Handling_Program
 
         private void lastBtn_Click(object sender, EventArgs e)
         {
-            // Assuming totalRecords is the total number of records
-            int totalRecords = 10; // You should replace this with the actual total number of records
+            
+            int totalRecords = 10; 
 
             if (currentIndex < totalRecords - 1)
             {
                 currentIndex = totalRecords - 1;
                 UpdateTextBoxes();
+                UpdateNavigationButtons();
             }
             else
             {
@@ -145,6 +150,21 @@ namespace File_Handling_Program
             textBox7.Text = currentData[6];
             textBox8.Text = currentData[7];
             textBox9.Text = currentData[8];
+        }
+
+        
+        private void UpdateNavigationButtons()
+        {
+            // Enable or disable buttons based on the current index
+            firstBtn.Enabled = currentIndex > 0;
+            prevBtn.Enabled = currentIndex > 0;
+            nextBtn.Enabled = currentIndex < currentData.Length - 1;
+            lastBtn.Enabled = currentIndex < currentData.Length - 1;
+        }
+
+        private void Form3_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

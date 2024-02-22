@@ -3,18 +3,17 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 
 namespace File_Handling_Program
 {
     public partial class Form1 : Form
     {
-        private int serialNumberCounter = 1; // Counter for dynamic serial numbers
+        private int serialNumberCounter = 1;
         private bool isUpdateButtonEnabled = false;
         private bool isDeleteButtonEnabled = false;
 
@@ -40,14 +39,11 @@ namespace File_Handling_Program
 
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            // Check if any cell is selected
             if (dataGridView1.SelectedCells != null && dataGridView1.SelectedCells.Count > 0)
             {
                 // Enable the buttons
-                button2.Enabled = true; // Update button
-                button3.Enabled = true; // Delete button
-
-
+                button2.Enabled = true;
+                button3.Enabled = true;
             }
         }
 
@@ -55,27 +51,19 @@ namespace File_Handling_Program
         {
             try
             {
-                // Check if any cell is selected
                 if (dataGridView1.SelectedCells != null && dataGridView1.SelectedCells.Count > 0)
                 {
-                    // Get the selected row index
                     int rowIndex = dataGridView1.SelectedCells[0].RowIndex;
 
-                    // Check if the row index is valid
                     if (rowIndex >= 0 && rowIndex < dataGridView1.Rows.Count)
                     {
-                        // Get the values of all cells in the selected row
                         string[] rowValues = new string[dataGridView1.Columns.Count];
                         for (int i = 0; i < dataGridView1.Columns.Count; i++)
                         {
-                            // Check if the cell value is not null
                             rowValues[i] = dataGridView1[i, rowIndex].Value?.ToString() ?? string.Empty;
                         }
 
-                        // Create an Instance of Form3
                         Form3 thirdForm = new Form3();
-
-                        // Call the SetTextBoxValues method in Form3 and pass the row values
                         thirdForm.SetTextBoxValues(rowValues);
 
                         // Show Form3
@@ -102,55 +90,123 @@ namespace File_Handling_Program
         {
             try
             {
-                string filePath = "C:\\Users\\lenovo\\Downloads\\New Text Document.txt";
+                string filePath = "C:\\Users\\lenovo\\Downloads\\New Text Document.bin";
 
                 if (File.Exists(filePath))
                 {
-                    string[] lines = File.ReadAllLines(filePath);
-
-                    // Clear existing rows
-                    dataGridView1.Rows.Clear();
-
-                    foreach (string line in lines)
+                    using (BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
                     {
-                        // Split by any whitespace characters (tabs, spaces)
-                        string[] values = line.Split(new char[] { '\t', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                        dataGridView1.Rows.Clear();
+                        serialNumberCounter = 1;
 
-                        if (values.Length >= 8) // Assuming there are 8 columns excluding the serial number
+                        while (reader.BaseStream.Position != reader.BaseStream.Length)
                         {
-                            int rowIndex = dataGridView1.Rows.Add();
+                            // Read data in binary format
+                            string prefix = reader.ReadString();
+                            string firstName = reader.ReadString();
+                            string middleName = reader.ReadString();
+                            string lastName = reader.ReadString();
+                            string education = reader.ReadString();
+                            string joiningDate = reader.ReadString();
+                            string currentCompany = reader.ReadString();
+                            string currentAddress = reader.ReadString();
+                            string dob = reader.ReadString();
 
-                            // Set the serial number dynamically
+                            // Add data to DataGridView
+                            int rowIndex = dataGridView1.Rows.Add();
                             dataGridView1.Rows[rowIndex].Cells[0].Value = serialNumberCounter.ToString();
                             serialNumberCounter++;
-
-                            // Set cell values for the other columns
-                            dataGridView1.Rows[rowIndex].Cells[1].Value = values[0]; // Prefix
-                            dataGridView1.Rows[rowIndex].Cells[2].Value = values[1]; // FirstName
-                            dataGridView1.Rows[rowIndex].Cells[3].Value = values[2]; // LastName
-                            dataGridView1.Rows[rowIndex].Cells[4].Value = values[3]; // Education
-                            dataGridView1.Rows[rowIndex].Cells[5].Value = values[4]; // JoiningDate
-                            dataGridView1.Rows[rowIndex].Cells[6].Value = values[5]; // CurrentCompany
-                            dataGridView1.Rows[rowIndex].Cells[7].Value = values[6]; // CurrentAddress
-                            dataGridView1.Rows[rowIndex].Cells[8].Value = values[7]; // DOB
-                        }
-                        else
-                        {
-                            MessageBox.Show($"Invalid line format: {line}");
+                            dataGridView1.Rows[rowIndex].Cells[1].Value = prefix;
+                            dataGridView1.Rows[rowIndex].Cells[2].Value = firstName;
+                            dataGridView1.Rows[rowIndex].Cells[3].Value = lastName;
+                            dataGridView1.Rows[rowIndex].Cells[4].Value = education;
+                            dataGridView1.Rows[rowIndex].Cells[5].Value = joiningDate;
+                            dataGridView1.Rows[rowIndex].Cells[6].Value = currentCompany;
+                            dataGridView1.Rows[rowIndex].Cells[7].Value = currentAddress;
+                            dataGridView1.Rows[rowIndex].Cells[8].Value = dob;
                         }
                     }
+
+                    button2.Enabled = false;
+                    button3.Enabled = false;
                 }
                 else
                 {
                     MessageBox.Show($"File not found: {filePath}");
                 }
-
-                button2.Enabled = false;
-                button3.Enabled = false;
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred: {ex.Message}");
+            }
+        }
+
+        private void DeleteRecordFromFile(int rowIndex)
+        {
+            string filePath = "C:\\Users\\lenovo\\Downloads\\New Text Document.bin";
+
+            try
+            {
+                List<string[]> records = new List<string[]>();
+
+                using (BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
+                {
+                    while (reader.BaseStream.Position != reader.BaseStream.Length)
+                    {
+                        // Read data in binary format
+                        string prefix = reader.ReadString();
+                        string firstName = reader.ReadString();
+                        string middleName = reader.ReadString();
+                        string lastName = reader.ReadString();
+                        string education = reader.ReadString();
+                        string joiningDate = reader.ReadString();
+                        string currentCompany = reader.ReadString();
+                        string currentAddress = reader.ReadString();
+                        string dob = reader.ReadString();
+
+                        records.Add(new string[] { prefix, firstName, middleName, lastName, education, joiningDate, currentCompany, currentAddress, dob });
+                    }
+                }
+
+                if (rowIndex >= 0 && rowIndex < records.Count)
+                {
+                    // Remove the selected record
+                    records.RemoveAt(rowIndex);
+
+                    // Write the updated records back to the binary file
+                    using (BinaryWriter writer = new BinaryWriter(File.Open(filePath, FileMode.Create)))
+                    {
+                        foreach (string[] record in records)
+                        {
+                            // Write data in binary format
+                            writer.Write(record[0]);
+                            writer.Write(record[1]);
+                            writer.Write(record[2]);
+                            writer.Write(record[3]);
+                            writer.Write(record[4]);
+                            writer.Write(record[5]);
+                            writer.Write(record[6]);
+                            writer.Write(record[7]);
+                            writer.Write(record[8]);
+                        }
+                    }
+
+                    // Remove the row from the DataGridView
+                    dataGridView1.Rows.RemoveAt(rowIndex);
+
+                    // Update serial numbers
+                    UpdateSerialNumbers();
+
+                    MessageBox.Show("Record deleted successfully.");
+                }
+                else
+                {
+                    MessageBox.Show("Invalid row index for deletion.");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error deleting record from file: {ex.Message}");
             }
         }
 
@@ -175,11 +231,26 @@ namespace File_Handling_Program
             // Delete button clicked
             if (dataGridView1.SelectedCells != null && dataGridView1.SelectedCells.Count > 0)
             {
-                int rowIndex = dataGridView1.SelectedCells[0].RowIndex;
-                dataGridView1.Rows.RemoveAt(rowIndex);
+                try
+                {
+                    int rowIndex = dataGridView1.SelectedCells[0].RowIndex;
+                    string serialNumber = dataGridView1.Rows[rowIndex].Cells[0].Value?.ToString();
 
-                // Update the serial number after deletion
-                UpdateSerialNumbers();
+                    DialogResult result = MessageBox.Show($"Are you sure you want to delete record with Serial Number {serialNumber}?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (result == DialogResult.Yes)
+                    {
+                        // Delete the record from the file
+                        DeleteRecordFromFile(rowIndex);
+
+                        // Update serial numbers
+                        UpdateSerialNumbers();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"An error occurred: {ex.Message}");
+                }
             }
             else
             {
@@ -189,13 +260,11 @@ namespace File_Handling_Program
 
         private void UpdateSerialNumbers()
         {
-            // Update serial numbers in the DataGridView
             for (int i = 0; i < dataGridView1.Rows.Count; i++)
             {
                 dataGridView1.Rows[i].Cells[0].Value = (i + 1).ToString();
             }
 
-            // Reset the serialNumberCounter to the last index
             serialNumberCounter = dataGridView1.Rows.Count + 1;
         }
     }
